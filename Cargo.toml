@@ -1,0 +1,25 @@
+[package]
+name = "statsdproto"
+version = "0.1.0"
+authors = ["Yann Ramin <github@theatr.us>"]
+edition = "2018"
+description = "Building blocks to parse, transform, and even pass through statsd data"
+
+license = "MIT"
+keywords = ["statsd", "metrics", "aggregation"]
+categories = ["development-tools", "parser-implementions"]
+repository = "https://github.com/theatrus/statsdproto"
+
+[[bench]]
+name = "statsd_benchmark"
+harness = false
+
+[dependencies]
+memchr = "2.3.4"
+bytes = "1.0.0"
+
+[dev-dependencies]
+tempfile = "3.1"
+criterion = "0.3"
+anyhow = "1.0"
+thiserror = "1.0"
