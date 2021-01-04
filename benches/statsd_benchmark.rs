@@ -1,8 +1,8 @@
 use bytes::Bytes;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
-fn parse(line: &Bytes) -> Option<statsdproto::statsd::StatsdPDU> {
-    statsdproto::statsd::StatsdPDU::new(line.clone())
+fn parse(line: &Bytes) -> Option<statsdproto::PDU> {
+    statsdproto::PDU::new(line.clone())
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
