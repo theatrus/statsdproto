@@ -7,7 +7,7 @@ use memchr::memchr;
 /// incoming message and can offer references to protocol fields. It only
 /// performs limited parsing of the protocol unit.
 #[derive(Debug, Clone)]
-pub struct StatsdPDU {
+pub struct PDU {
     underlying: Bytes,
     value_index: usize,
     type_index: usize,
@@ -16,7 +16,7 @@ pub struct StatsdPDU {
     tags_index: Option<(usize, usize)>,
 }
 
-impl StatsdPDU {
+impl PDU {
     pub fn name(&self) -> &[u8] {
         &self.underlying[0..self.value_index - 1]
     }
@@ -57,7 +57,7 @@ impl StatsdPDU {
         buf.put(suffix);
         buf.put(self.underlying[self.value_index - 1..].as_ref());
 
-        StatsdPDU {
+        PDU {
             underlying: buf.freeze(),
             value_index: self.value_index + offset,
             type_index: self.type_index + offset,
@@ -122,7 +122,7 @@ impl StatsdPDU {
             }
             scan_index = index.unwrap() + 1;
         }
-        Some(StatsdPDU {
+        Some(PDU {
             underlying: line,
             value_index,
             type_index,
@@ -148,14 +148,14 @@ pub mod atest {
         ];
         for buf in valid {
             println!("{}", String::from_utf8(buf.clone())?);
-            StatsdPDU::new(buf.into()).ok_or(anyhow!("no pdu"))?;
+            PDU::new(buf.into()).ok_or(anyhow!("no pdu"))?;
         }
         Ok(())
     }
 
     #[test]
     fn simple_pdu() {
-        let pdu = StatsdPDU::new(Bytes::from_static(b"foo.car:bar:3.0|c")).unwrap();
+        let pdu = PDU::new(Bytes::from_static(b"foo.car:bar:3.0|c")).unwrap();
         assert_eq!(pdu.name(), b"foo.car:bar");
         assert_eq!(pdu.value(), b"3.0");
         assert_eq!(pdu.pdu_type(), b"c")
@@ -163,7 +163,7 @@ pub mod atest {
 
     #[test]
     fn tagged_pdu() {
-        let pdu = StatsdPDU::new(Bytes::from_static(b"foo.bar:3|c|@1.0|#tags")).unwrap();
+        let pdu = PDU::new(Bytes::from_static(b"foo.bar:3|c|@1.0|#tags")).unwrap();
         assert_eq!(pdu.name(), b"foo.bar");
         assert_eq!(pdu.value(), b"3");
         assert_eq!(pdu.pdu_type(), b"c");
@@ -173,7 +173,7 @@ pub mod atest {
 
     #[test]
     fn tagged_pdu_reverse() {
-        let pdu = StatsdPDU::new(Bytes::from_static(b"foo.bar:3|c|#tags|@1.0")).unwrap();
+        let pdu = PDU::new(Bytes::from_static(b"foo.bar:3|c|#tags|@1.0")).unwrap();
         assert_eq!(pdu.name(), b"foo.bar");
         assert_eq!(pdu.value(), b"3");
         assert_eq!(pdu.pdu_type(), b"c");
@@ -183,7 +183,7 @@ pub mod atest {
 
     #[test]
     fn prefix_suffix_test() {
-        let opdu = StatsdPDU::new(Bytes::from_static(b"foo.bar:3|c|#tags|@1.0")).unwrap();
+        let opdu = PDU::new(Bytes::from_static(b"foo.bar:3|c|#tags|@1.0")).unwrap();
         let pdu = opdu.with_prefix_suffix(b"aa", b"bbb");
         assert_eq!(pdu.name(), b"aafoo.barbbb");
         assert_eq!(pdu.value(), b"3");
