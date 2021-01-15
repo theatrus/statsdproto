@@ -15,8 +15,8 @@ name = "statsd_benchmark"
 harness = false
 
 [dependencies]
-memchr = "2.3.4"
-bytes = "1.0.0"
+memchr = "2"
+bytes = "1"
 
 [dev-dependencies]
 tempfile = "3.1"
